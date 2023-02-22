@@ -63,3 +63,71 @@
 `sudo mount -a`
 `sudo systemctl daemon-reload`
 
+## Step 2 - Prepare the Database Server
+
+### Repeat same steps as the web server but mounting db-lv to /db directory instead
+![db mount](/images/db-mount.PNG)
+
+
+## Install WordPress on Web Server EC2 
+
+### Update repo and install wget,Apache and its dependencies. Then, start Apache.
+`sudo yum -y update`
+
+`sudo yum -y install wget httpd php php-mysqlnd php-fpm php-json`
+
+`sudo systemctl enable httpd`
+
+`sudo systemctl start httpd`
+![vgs](/images/httpd-run.PNG)
+
+## Instal PHP and RHEL dependencies 
+
+![php](/images/php-depenmdecies.PNG)
+
+`sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm`
+
+`sudo dnf update -y `
+
+`sudo dnf upgrade --refresh -y `
+
+`sudo dnf install epel-release `
+
+`sudo subscription-manager repos --enable codeready-builder-for-rhel-9-$(arch)-rpms `
+
+`sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm `
+
+` $ sudo dnf install epel-release`
+
+`sudo dnf update `
+` sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-9.rpm`
+![vgs](/images/enable-remi.PNG)
+
+
+
+
+`sudo yum module list php `
+`sudo yum module reset php `
+`sudo yum module enable php:remi-8.1 `
+`sudo yum install php php-opcache php-gd php-curl php-mysqlnd`
+`sudo systemctl start php-fpm `
+`sudo systemctl enable php-fpm`
+`sudo setsebool -P httpd_execmem 1`
+
+### Restart APACHE
+`sudo systemctl restart httpd`
+
+### Download wordpress and copy it to var/www/html
+` mkdir wordpress`
+`cd   wordpress`
+`sudo wget http://wordpress.org/latest.tar.gz`
+`sudo tar xzvf latest.tar.gz`
+`sudo rm -rf latest.tar.gz`
+`cp wordpress/wp-config-sample.php wordpress/wp-config.php`
+`cp -R wordpress /var/www/html/`
+
+
+## Configure SELinux Policies
+`sudo chown -R apache:apache /var/www/html/wordpress`
+`sudo chcon -t httpd_sys_rw_content_t /var/www/html/wordpress -R`
+`sudo setsebool -P httpd_can_network_connect=1`
