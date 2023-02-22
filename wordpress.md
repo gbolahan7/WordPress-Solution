@@ -69,7 +69,7 @@
 ![db mount](/images/db-mount.PNG)
 
 
-## Install WordPress on Web Server EC2 
+## Step 3 -  Install WordPress on Web Server EC2 
 
 ### Update repo and install wget,Apache and its dependencies. Then, start Apache.
 `sudo yum -y update`
@@ -131,3 +131,41 @@
 `sudo chown -R apache:apache /var/www/html/wordpress`
 `sudo chcon -t httpd_sys_rw_content_t /var/www/html/wordpress -R`
 `sudo setsebool -P httpd_can_network_connect=1`
+
+
+## Step 4 - Install MySQL on DB Server EC2
+`sudo yum update`
+`sudo yum install mysql-server`
+
+## Step 5 - Configure DB to work with WordPress
+![vgs](/images/config-php.PNG)
+
+
+`sudo mysql`
+`CREATE DATABASE wordpress;`
+`CREATE USER 'myuser'@'<Web-Server-Private-IP-Address>'IDENTIFIED BY 'mypass';`
+`GRANT ALL ON wordpress.* TO 'myuser'@'<Web-Server-Private-IP-Address>';`
+`FLUSH PRIVILEGES;`
+`SHOW DATABASES;`
+
+
+## Step 6 - Configure Wordpress to connect to remote db
+ ### Open port 3306 on DB server EC2 instance and allows access to the DB server only from web server IP addr.
+
+ ### Next, Install MySQL client and test that it can be connected from web server to db server using mysql-client
+ `sudo yum install mysql`
+ `sudo mysql -u admin -p -h <DB-Server-Private-IP-address>`
+
+ ![vgs](/images/web-db-conn.PNG)
+
+ ### Verify it can show database and then change permissions and config so Apache can use wordpress
+
+ ### Finally, enable TCP port 80 in Web server instance from everywhere 0.0.0.0 and then try to access the browser via the link to the wordpress site
+ `http://<Web-Server-Public-IP-Address>/wordpress/`
+
+ ![wordpress](/images/wordpress.PNG)
+
+ ![wordpress](/images/wp-web.PNG)
+
+ ![wp](/images/wp-dashboard.PNG)
+
